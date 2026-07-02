@@ -3,7 +3,7 @@ import app from "./app.js";
 import connectDB from "./config/db.js";
 
 dotenv.config();
-
+console.log("Gemini Key:", process.env.GEMINI_API_KEY);
 // Connect Database
 connectDB();
 

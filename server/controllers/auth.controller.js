@@ -60,3 +60,70 @@ return res.status(201).json({
     });
   }
 };
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Step 1: Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required.",
+      });
+    }
+
+    // Step 2: Find user
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
+    }
+
+    // Step 3: Compare password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
+    }
+
+    // Step 4: Generate token
+    const token = generateToken(user._id);
+
+    // Step 5: Prepare response
+    const userResponse = {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profileImage: user.profileImage,
+      createdAt: user.createdAt,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful.",
+      token,
+      user: userResponse,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+export const getCurrentUser = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+};
